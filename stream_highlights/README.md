@@ -38,15 +38,14 @@ is repo root).
 - Replace `/path/to/mystream.mp4` with the actual path to your 8-hour file. Examples:
   - If the file sits next to the repo: `--input /home/you/Videos/mystream.mp4`
   - If the file is in the repo folder: `--input ./mystream.mp4`
-- Then run:
+- Then run (single line avoids copy/paste issues):
   ```bash
-  python stream_highlights/pipeline.py \
-    --input /path/to/mystream.mp4 \
-    --output ./output \
-    --max-seconds 1200 \
-    --top-k 4 \
-    --model-size medium
+  python3 stream_highlights/pipeline.py --input /path/to/mystream.mp4 --output ./output --max-seconds 1200 --top-k 4 --model-size medium
   ```
+
+Troubleshooting common shell errors:
+- `Permission denied`: ensure you are **prefixing the command with `python3`** (or run `chmod +x stream_highlights/pipeline.py` and execute `./stream_highlights/pipeline.py ...`).
+- `cannot execute binary file`: the shell tried to run your video as a program—double-check that every line continues with a backslash (`\`) or use the single-line command above.
 
 3) **Collect your highlights**
 - When it finishes, grab the clips from `output/clips/` and the summaries/metadata from `output/stories.jsonl`.
