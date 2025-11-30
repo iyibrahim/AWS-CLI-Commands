@@ -12,6 +12,7 @@ without requiring optional dependencies until a stage is executed.
 from __future__ import annotations
 
 import argparse
+import difflib
 import json
 import math
 import subprocess
@@ -19,6 +20,23 @@ import tempfile
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Iterable, List, Sequence, Tuple
+
+VALID_WHISPER_MODELS = {
+    "tiny",
+    "tiny.en",
+    "base",
+    "base.en",
+    "small",
+    "small.en",
+    "medium",
+    "medium.en",
+    "large-v1",
+    "large-v2",
+    "large-v3",
+    "large",
+    "large-v3-turbo",
+    "turbo",
+}
 
 
 @dataclass
@@ -168,6 +186,19 @@ def beats_from_transcript(words: Iterable[str]) -> List[str]:
     return beats[:6]
 
 
+def normalize_whisper_model(raw: str) -> str:
+    cleaned = raw.strip().strip("~").lower()
+    if cleaned in VALID_WHISPER_MODELS:
+        return cleaned
+
+    suggestion = difflib.get_close_matches(cleaned, VALID_WHISPER_MODELS, n=1)
+    hint = f" Did you mean '{suggestion[0]}'?" if suggestion else ""
+    valid_list = ", ".join(sorted(VALID_WHISPER_MODELS))
+    raise ValueError(
+        f"Unknown Whisper model '{raw}'. Valid options: {valid_list}.{hint}"
+    )
+
+
 def score_segment(transcript: dict, rms: List[Tuple[float, float]], segment: Segment) -> float:
     words = transcript.get("segments", [])
     total_words = sum(len(seg.get("words", [])) for seg in words)
@@ -249,6 +280,7 @@ def run_pipeline(
     fixed_slices: bool = False,
     model_size: str = "medium",
 ) -> None:
+    model_size = normalize_whisper_model(model_size)
     output_dir.mkdir(parents=True, exist_ok=True)
     clips_dir = output_dir / "clips"
     transcripts_dir = output_dir / "transcripts"
@@ -325,6 +357,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 def main(argv: Sequence[str] | None = None) -> None:
     args = parse_args(argv)
+    args.model_size = normalize_whisper_model(args.model_size)
     run_pipeline(
         input_path=args.input,
         output_dir=args.output,

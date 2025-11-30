@@ -46,6 +46,7 @@ is repo root).
 Troubleshooting common shell errors:
 - `Permission denied`: ensure you are **prefixing the command with `python3`** (or run `chmod +x stream_highlights/pipeline.py` and execute `./stream_highlights/pipeline.py ...`).
 - `cannot execute binary file`: the shell tried to run your video as a program—double-check that every line continues with a backslash (`\`) or use the single-line command above.
+- `Model ... not found`: remove any accidental trailing characters (e.g., `medium~` ➜ `medium`) and choose a supported Whisper size: `tiny`, `tiny.en`, `base`, `base.en`, `small`, `small.en`, `medium`, `medium.en`, `large-v1`, `large-v2`, `large-v3`, `large`, `large-v3-turbo`, `turbo`.
 
 3) **Collect your highlights**
 - When it finishes, grab the clips from `output/clips/` and the summaries/metadata from `output/stories.jsonl`.
